@@ -49,6 +49,9 @@ dependencies:
   pdf: ^3.10.8
   logger: ^2.2.0
   printer: ^0.0.5
+  sqflite: any
+  path: any
+  sqflite_common_ffi: any
 
 dev_dependencies:
   flutter_test:
