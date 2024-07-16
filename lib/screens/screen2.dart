@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -21,6 +20,7 @@ class Screen2 extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _Screen2State createState() => _Screen2State();
 }
 
@@ -150,6 +150,7 @@ class _Screen2State extends State<Screen2> {
         onLayout: (PdfPageFormat format) async => pdf.save(),
       );
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al imprimir el documento PDF: $e')),
       );

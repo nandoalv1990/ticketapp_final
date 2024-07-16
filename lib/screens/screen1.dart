@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter/rendering.dart';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'screen2.dart';
 import 'screen3.dart';
 
@@ -114,6 +120,7 @@ class Screen1State extends State<Screen1> {
     );
   }
 
+  final GlobalKey barcodeKey = GlobalKey();
   Widget buildBarcodeWidget(String format) {
     Barcode barcode;
     switch (format) {
@@ -131,20 +138,38 @@ class Screen1State extends State<Screen1> {
         break;
     }
 
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: BarcodeWidget(
-        data: textController.text,
-        barcode: barcode,
-        errorBuilder: (context, error) => Center(child: Text(error)),
-        drawText: true,
+    return RepaintBoundary(
+      key: barcodeKey,
+      child: SizedBox(
+        width: 200,
+        height: 200,
+        child: BarcodeWidget(
+          data: textController.text,
+          barcode: barcode,
+          errorBuilder: (context, error) => Center(child: Text(error)),
+          drawText: true,
+        ),
       ),
     );
   }
 
   Future<void> generateBarcode() async {
-    // Implementar la lógica para generar el código de barras
+    try {
+      RenderRepaintBoundary boundary = barcodeKey.currentContext!
+          .findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage();
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      ByteData? byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+      File imgFile = File('$directory/barcode.png');
+      imgFile.writeAsBytes(pngBytes);
+
+      //print('Barcode saved to $directory/barcode.png');
+    } catch (e) {
+      //print('Error generating barcode: $e');
+    }
   }
 
   Future<void> scanBarcode() async {
@@ -157,16 +182,56 @@ class Screen1State extends State<Screen1> {
       );
 
       if (barcode != '-1') {
-        setState(() {
-          textController.text = barcode;
-        });
+        _showOptionsDialog(barcode);
       } else {
         setState(() {
           textController.text = text1;
         });
       }
     } catch (e) {
-      print('Error scanning barcode: $e');
+      //print('Error scanning barcode: $e');
     }
+  }
+
+  void _showOptionsDialog(String barcode) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('¿Qué quieres hacer con el código escaneado?'),
+          content: Text(barcode),
+          actions: <Widget>[
+            /* TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                Uri uri = Uri.parse(barcode);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                } else {
+                  //print('Could not launch $barcode');
+                }
+              },
+              child: const Text('Abrir'),
+            ),*/
+            TextButton(
+              onPressed: () {
+                Share.share(barcode);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Compartir'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  textController.text = barcode;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Continuar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
