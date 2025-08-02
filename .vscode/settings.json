@@ -1,3 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cmake.sourceDirectory": "D:/Fernando/Documents/vscode/workspace/ticketapp_final/build/windows/x64/pdfium-download"
 }
