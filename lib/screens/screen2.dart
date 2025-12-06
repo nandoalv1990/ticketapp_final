@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-import 'package:barcode_widget/barcode_widget.dart';
-import 'package:pdf/pdf.dart';
+import '../widgets/label_printer.dart' as label_printer;
 
 class Screen2 extends StatefulWidget {
   final String initialLabelText;
@@ -92,68 +89,7 @@ class _Screen2State extends State<Screen2> {
   }
 
   Future<void> printDocument() async {
-    final pdf = pw.Document();
-
-    final Barcode barcode;
-    switch (selectedFormat) {
-      case 'QR':
-        barcode = Barcode.qrCode();
-        break;
-      case 'Code 128':
-        barcode = Barcode.code128();
-        break;
-      case 'Aztec':
-        barcode = Barcode.aztec();
-        break;
-      default:
-        barcode = Barcode.qrCode();
-        break;
-    }
-
-    pdf.addPage(
-      pw.Page(
-        build: (context) {
-          return pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.center,
-            children: [
-              pw.Text(
-                labelText,
-                style: const pw.TextStyle(fontSize: 40),
-              ),
-              pw.SizedBox(height: 20),
-              pw.BarcodeWidget(
-                barcode: barcode,
-                data: labelText,
-                width: 200,
-                height: 200,
-                drawText: false,
-              ),
-              pw.SizedBox(height: 20),
-              for (var product in widget.products)
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('Producto: ${product['product'] ?? ''}'),
-                    pw.Text('Código: ${product['code'] ?? ''}'),
-                    pw.SizedBox(height: 10),
-                  ],
-                ),
-            ],
-          );
-        },
-      ),
-    );
-
-    // Mostrar la interfaz de impresión sin guardar el archivo
-    try {
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save(),
-      );
-    } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al imprimir el documento PDF: $e')),
-      );
-    }
+    await label_printer.printDocument(context, labelText, selectedFormat,
+        widget.barcodeImage, widget.products);
   }
 }

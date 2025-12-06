@@ -33,39 +33,6 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getProductMapList() async {
-    Database? db = await this.db;
-    final List<Map<String, dynamic>> result = await db!.query(productTable);
-    return result;
-  }
-
-  Future<int> insertProduct(Map<String, String> product) async {
-    Database? db = await this.db;
-    final int result = await db!.insert(productTable, product);
-    return result;
-  }
-
-  Future<int> updateProduct(Map<String, String> product) async {
-    Database? db = await this.db;
-    final int result = await db!.update(
-      productTable,
-      product,
-      where: '$colId = ?',
-      whereArgs: [product[colId]],
-    );
-    return result;
-  }
-
-  Future<int> deleteProduct(int id) async {
-    Database? db = await this.db;
-    final int result = await db!.delete(
-      productTable,
-      where: '$colId = ?',
-      whereArgs: [id],
-    );
-    return result;
-  }
-
   Future<void> close() async {
     Database? db = await this.db;
     if (db != null) {

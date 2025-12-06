@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'db_helper.dart';
+import '../data/product_dao.dart';
 
 class Screen3 extends StatefulWidget {
   const Screen3({super.key});
@@ -13,7 +13,7 @@ class _Screen3State extends State<Screen3> {
   List<Map<String, dynamic>> products = [];
   final TextEditingController productController = TextEditingController();
   final TextEditingController codeController = TextEditingController();
-  final dbHelper = DatabaseHelper.instance;
+  final productDao = ProductDao();
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   void _refreshProductList() async {
-    final data = await dbHelper.getProductMapList();
+    final data = await productDao.getProductMapList();
     setState(() {
       products = data;
     });
@@ -30,7 +30,7 @@ class _Screen3State extends State<Screen3> {
 
   void _addProduct() async {
     if (productController.text.isEmpty || codeController.text.isEmpty) return;
-    await dbHelper.insertProduct({
+    await productDao.insertProduct({
       'product': productController.text,
       'code': codeController.text,
     });
@@ -40,7 +40,7 @@ class _Screen3State extends State<Screen3> {
   }
 
   void _deleteProduct(int id) async {
-    await dbHelper.deleteProduct(id);
+    await productDao.deleteProduct(id);
     _refreshProductList();
   }
 
