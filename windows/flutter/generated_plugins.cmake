@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   printing
+  share_plus_windows
   url_launcher_windows
 )
 
